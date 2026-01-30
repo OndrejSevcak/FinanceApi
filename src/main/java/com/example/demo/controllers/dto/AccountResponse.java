@@ -8,15 +8,19 @@ public class AccountResponse {
     private BigDecimal balance;
     private boolean active;
     private LocalDateTime createdAt;
+    private String currencyCode;
+    private Boolean cryptoFlag;
 
     public AccountResponse() {
     }
 
-    public AccountResponse(Long accKey, BigDecimal balance, boolean active, LocalDateTime createdAt) {
+    public AccountResponse(Long accKey, BigDecimal balance, boolean active, LocalDateTime createdAt, String currencyCode, Boolean cryptoFlag) {
         this.accKey = accKey;
         this.balance = balance;
         this.active = active;
         this.createdAt = createdAt;
+        this.currencyCode = currencyCode;
+        this.cryptoFlag = cryptoFlag;
     }
 
     public Long getAccKey() {
@@ -49,6 +53,22 @@ public class AccountResponse {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getCurrencyCode() {
+        return currencyCode;
+    }
+
+    public void setCurrencyCode(String currencyCode) {
+        this.currencyCode = currencyCode;
+    }
+
+    public Boolean getCryptoFlag() {
+        return cryptoFlag;
+    }
+
+    public void setCryptoFlag(Boolean cryptoFlag) {
+        this.cryptoFlag = cryptoFlag;
     }
 }
 
