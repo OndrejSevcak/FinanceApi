@@ -1,7 +1,7 @@
 package com.example.demo.services;
 
-import com.example.demo.controllers.dto.AccountResponse;
-import com.example.demo.controllers.dto.CreateAccountRequest;
+import com.example.demo.dto.account.AccountResponse;
+import com.example.demo.dto.account.CreateAccountRequest;
 import com.example.demo.entities.Account;
 import com.example.demo.repositories.AccountRepository;
 import org.springframework.stereotype.Service;

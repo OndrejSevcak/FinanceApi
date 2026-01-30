@@ -1,7 +1,6 @@
-package com.example.demo.controllers.dto;
+package com.example.demo.dto.account;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 

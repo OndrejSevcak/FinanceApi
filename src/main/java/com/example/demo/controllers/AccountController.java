@@ -1,7 +1,7 @@
 package com.example.demo.controllers;
 
-import com.example.demo.controllers.dto.AccountResponse;
-import com.example.demo.controllers.dto.CreateAccountRequest;
+import com.example.demo.dto.account.AccountResponse;
+import com.example.demo.dto.account.CreateAccountRequest;
 import com.example.demo.services.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

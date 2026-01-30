@@ -1,4 +1,4 @@
-package com.example.demo.controllers.dto;
+package com.example.demo.dto.account;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
