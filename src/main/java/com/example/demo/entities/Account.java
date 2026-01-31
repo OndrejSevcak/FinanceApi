@@ -22,6 +22,12 @@ public class Account {
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "currency_code")
+    private String currencyCode;
+
+    @Column(name = "crypto_flag")
+    private Boolean cryptoFlag;
+
     public Account() {
     }
 
@@ -55,5 +61,21 @@ public class Account {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getCurrencyCode() {
+        return currencyCode;
+    }
+
+    public void setCurrencyCode(String currencyCode) {
+        this.currencyCode = currencyCode;
+    }
+
+    public Boolean getCryptoFlag() {
+        return cryptoFlag;
+    }
+
+    public void setCryptoFlag(Boolean cryptoFlag) {
+        this.cryptoFlag = cryptoFlag;
     }
 }

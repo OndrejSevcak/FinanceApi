@@ -2,5 +2,17 @@ CREATE TABLE account (
     acc_key BIGINT AUTO_INCREMENT PRIMARY KEY,
     balance DECIMAL(19,2) DEFAULT 0,
     active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    currency_code VARCHAR(10) DEFAULT 'EUR',
+    crypto_flag BOOLEAN DEFAULT FALSE
+);
+
+
+CREATE TABLE users (
+    user_key BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    nickname VARCHAR(100),
+    levell INT DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

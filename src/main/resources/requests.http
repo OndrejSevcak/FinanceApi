@@ -1,0 +1,31 @@
+###
+# Create a new account (POST)
+POST http://localhost:8080/api/accounts
+Content-Type: application/json
+Accept: application/json
+
+{
+  "currencyCode": "EUR",
+  "cryptoFlag": false
+}
+
+# Create a new account (POST)
+POST http://localhost:8080/api/accounts
+Content-Type: application/json
+Accept: application/json
+
+{
+  "initialBalance": 200.00,
+  "currencyCode": "EUR",
+  "cryptoFlag": false
+}
+
+# Create a new account (POST)
+POST http://localhost:8080/api/accounts
+Content-Type: application/json
+Accept: application/json
+
+{
+  "currencyCode": "USDT",
+  "cryptoFlag": true
+}
