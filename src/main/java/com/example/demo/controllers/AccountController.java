@@ -27,5 +27,12 @@ public class AccountController {
         URI location = uriBuilder.path("/api/accounts/{id}").buildAndExpand(resp.getAccKey()).toUri();
         return ResponseEntity.created(location).body(resp);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AccountResponse> getAccountById(@PathVariable("id") Long accKey) {
+        return accountService.getAccountById(accKey)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
 
