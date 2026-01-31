@@ -3,7 +3,7 @@ package com.example.demo.entities;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User {
 
     @Id
@@ -11,7 +11,7 @@ public class User {
     @Column(name = "user_key")
     private Long userKey;
 
-    @Column(name = "email", unique = true, nullable = false, length = 100)
+    @Column(name = "username", unique = true, nullable = false, length = 100)
     private String email;
 
     @Column(name = "password")
@@ -20,7 +20,7 @@ public class User {
     @Column(name = "nickname")
     private String nickName;
 
-    @Column(name = "level")
+    @Column(name = "levell")
     private Integer level;
 
     public User() {

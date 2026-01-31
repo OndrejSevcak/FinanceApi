@@ -6,7 +6,8 @@ Accept: application/json
 
 {
   "currencyCode": "EUR",
-  "cryptoFlag": false
+  "cryptoFlag": false,
+  "userKey": 1
 }
 
 # Create a new account (POST)
@@ -17,7 +18,8 @@ Accept: application/json
 {
   "initialBalance": 200.00,
   "currencyCode": "EUR",
-  "cryptoFlag": false
+  "cryptoFlag": false,
+  "userKey": 1
 }
 
 # Create a new account (POST)
@@ -27,5 +29,6 @@ Accept: application/json
 
 {
   "currencyCode": "USDT",
-  "cryptoFlag": true
+  "cryptoFlag": true,
+  "userKey": 1
 }
