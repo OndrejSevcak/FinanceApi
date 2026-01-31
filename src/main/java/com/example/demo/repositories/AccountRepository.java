@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
@@ -24,5 +26,21 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Query(value = "SELECT COUNT(*) FROM user_account ua JOIN account a ON ua.acc_key = a.acc_key WHERE ua.user_key = :userKey AND ua.acc_type_key = 'CRY' AND UPPER(TRIM(a.currency_code)) = UPPER(TRIM(:currencyCode))", nativeQuery = true)
     int countUserCryptoByCurrency(@Param("userKey") Long userKey, @Param("currencyCode") String currencyCode);
+
+    // atomic debit: subtract amount from balance only if sufficient
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE account SET balance = balance - :amount WHERE acc_key = :accKey AND balance >= :amount", nativeQuery = true)
+    int debitIfSufficient(@Param("accKey") Long accKey, @Param("amount") BigDecimal amount);
+
+    // credit: add amount to balance
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE account SET balance = balance + :amount WHERE acc_key = :accKey", nativeQuery = true)
+    int credit(@Param("accKey") Long accKey, @Param("amount") BigDecimal amount);
+
+    // get balance for an account (native query to lock in same transaction if needed)
+    @Query(value = "SELECT balance FROM account WHERE acc_key = :accKey", nativeQuery = true)
+    BigDecimal getBalance(@Param("accKey") Long accKey);
 
 }
