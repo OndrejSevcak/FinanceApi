@@ -40,5 +40,15 @@ public class AccountService {
 
         return new AccountResponse(saved.getAccKey(), saved.getBalance(), saved.isActive(), createdAt);
     }
+
+    public Optional<AccountResponse> getAccountById(Long id) {
+        return accountRepository.findById(id)
+                .map(account -> new AccountResponse(
+                        account.getAccKey(),
+                        account.getBalance(),
+                        account.isActive(),
+                        account.getCreatedAt()
+                ));
+    }
 }
 
