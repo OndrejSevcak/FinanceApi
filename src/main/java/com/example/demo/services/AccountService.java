@@ -5,17 +5,15 @@ import com.example.demo.dto.account.CreateAccountRequest;
 import com.example.demo.entities.Account;
 import com.example.demo.repositories.AccountRepository;
 import com.example.demo.repositories.UserRepository;
+import com.example.demo.repositories.TransactionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,14 +22,13 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
     private final FxService fxService;
+    private final TransactionRepository transactionRepository;
 
-    @PersistenceContext
-    private EntityManager em;
-
-    public AccountService(AccountRepository accountRepository, UserRepository userRepository, FxService fxService) {
+    public AccountService(AccountRepository accountRepository, UserRepository userRepository, FxService fxService, TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
         this.fxService = fxService;
+        this.transactionRepository = transactionRepository;
     }
 
     @Transactional
@@ -121,27 +118,18 @@ public class AccountService {
 
         // idempotency: check existing transaction
         if (idempotencyKey != null) {
-            List<?> rows = em.createNativeQuery("SELECT tx_key FROM transactions WHERE idempotency_key = :key LIMIT 1")
-                    .setParameter("key", idempotencyKey)
-                    .getResultList();
-            if (!rows.isEmpty()) {
-                Object val = rows.get(0);
-                if (val instanceof Number) return ((Number) val).longValue();
+            Optional<Long> existingTx = transactionRepository.findFirstTxKeyByIdempotencyKey(idempotencyKey);
+            if (existingTx.isPresent()) {
+                return existingTx.get();
             }
         }
 
         // load currency codes
-        List<?> fromRows = em.createNativeQuery("SELECT currency_code FROM account WHERE acc_key = :accKey")
-                .setParameter("accKey", fromAccKey)
-                .getResultList();
-        List<?> toRows = em.createNativeQuery("SELECT currency_code FROM account WHERE acc_key = :accKey")
-                .setParameter("accKey", toAccKey)
-                .getResultList();
-        if (fromRows.isEmpty() || toRows.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
-        }
-        String fromCurrency = String.valueOf(fromRows.get(0));
-        String toCurrency = String.valueOf(toRows.get(0));
+        java.util.Optional<String> fromCurrencyOpt = transactionRepository.findCurrencyCodeByAccKey(fromAccKey);
+        java.util.Optional<String> toCurrencyOpt = transactionRepository.findCurrencyCodeByAccKey(toAccKey);
+
+        String fromCurrency = fromCurrencyOpt.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Source account not found"));
+        String toCurrency = toCurrencyOpt.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Target account not found"));
 
         // get FX rate
         BigDecimal rate = fxService.getRate(fromCurrency, toCurrency);
@@ -157,7 +145,7 @@ public class AccountService {
         if (updated == 0) {
             // insufficient funds
             // insert failed transaction record
-            insertTransactionRecord("CONVERSION", fromAccKey, toAccKey, amount, fromCurrency, toCurrency, fee, fromCurrency, rate, idempotencyKey, "FAILED", note);
+            transactionRepository.insertTransaction("CONVERSION", fromAccKey, toAccKey, amount, fromCurrency, toCurrency, fee, fromCurrency, rate, idempotencyKey, "FAILED", note);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds");
         }
 
@@ -166,33 +154,8 @@ public class AccountService {
         accountRepository.credit(toAccKey, toAmount);
 
         // insert successful transaction
-        Long txKey = insertTransactionRecord("CONVERSION", fromAccKey, toAccKey, amount, fromCurrency, toCurrency, fee, fromCurrency, rate, idempotencyKey, "COMPLETED", note);
+        Long txKey = transactionRepository.insertTransaction("CONVERSION", fromAccKey, toAccKey, amount, fromCurrency, toCurrency, fee, fromCurrency, rate, idempotencyKey, "COMPLETED", note);
 
         return txKey;
-    }
-
-    private Long insertTransactionRecord(String txType, Long fromAcc, Long toAcc, BigDecimal amount, String fromCurrency, String toCurrency, BigDecimal feeAmount, String feeCurrency, BigDecimal rate, String idempotencyKey, String status, String memo) {
-        // use native insert and return generated key
-        em.createNativeQuery("INSERT INTO transactions (tx_type_key, from_acc_key, to_acc_key, amount, from_currency_code, to_currency_code, fee_amount, fee_currency, exchange_rate, idempotency_key, status, memo) VALUES (:txType, :fromAcc, :toAcc, :amount, :fromCur, :toCur, :fee, :feeCur, :rate, :idem, :status, :memo)")
-                .setParameter("txType", txType)
-                .setParameter("fromAcc", fromAcc)
-                .setParameter("toAcc", toAcc)
-                .setParameter("amount", amount)
-                .setParameter("fromCur", fromCurrency)
-                .setParameter("toCur", toCurrency)
-                .setParameter("fee", feeAmount)
-                .setParameter("feeCur", feeCurrency)
-                .setParameter("rate", rate)
-                .setParameter("idem", idempotencyKey)
-                .setParameter("status", status)
-                .setParameter("memo", memo)
-                .executeUpdate();
-
-        // fetch last inserted id (H2)
-        List<?> rows = em.createNativeQuery("SELECT tx_key FROM transactions ORDER BY tx_key DESC LIMIT 1").getResultList();
-        if (rows.isEmpty()) return null;
-        Object val = rows.get(0);
-        if (val instanceof Number) return ((Number) val).longValue();
-        return null;
     }
 }

@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS transaction_type (
     description VARCHAR(255)
 );
 
+/*
 INSERT INTO transaction_type (tx_type_key, description) VALUES
 ('FIAT_DEPOSIT', 'Fiat deposit'),
 ('FIAT_WITHDRAWAL', 'Fiat withdrawal'),
@@ -62,6 +63,7 @@ INSERT INTO transaction_type (tx_type_key, description) VALUES
 ('STAKING_REWARD', 'Staking/reward'),
 ('ADJUSTMENT', 'Manual/system adjustment')
 ;
+*/
 
 CREATE TABLE IF NOT EXISTS transactions (
     tx_key BIGINT AUTO_INCREMENT PRIMARY KEY,
